@@ -21,7 +21,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/home/twoj_login/domains/twojadomena.pl/public_html/"
+          target: "/home/buser1/public_html/githubTest/"
           exclude: |
             .git/
             .github/
