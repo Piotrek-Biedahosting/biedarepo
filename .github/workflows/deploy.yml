@@ -1,1 +1,28 @@
-test
+name: Deploy PHP to Biedahosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Odwróć/Pobierz kod z repozytorium
+        uses: actions/checkout@v4
+
+      - name: Wysłanie plików przez SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "/home/twoj_login/domains/twojadomena.pl/public_html/"
+          exclude: |
+            .git/
+            .github/
+            README.md
