@@ -10,19 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Odwróć/Pobierz kod z repozytorium
+      - name: Pobierz kod z repozytorium
         uses: actions/checkout@v4
 
-      - name: Wysłanie plików przez SCP
+      # --- PRZYGOTOWANIE CZYSTEGO FOLDERA DO WYSYŁKI ---
+      - name: Przygotowanie paczki plików (wykluczenie zbędnych)
+        run: |
+          mkdir build_folder
+          # Kopiujemy wszystko oprócz katalogów systemowych i README
+          rsync -av --exclude='.git' \
+                    --exclude='.github' \
+                    --exclude='README.md' \
+                    ./ build_folder/
+
+      # --- CZYSZCZENIE FOLDERA DOCELOWEGO NA SERWERZE ---
+      - name: Czyszczenie katalogu na serwerze
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf /home/buser1/public_html/githubTest/*
+
+      # --- WYSYŁANIE GOTOWEJ PACZKI PRZEZ SCP ---
+      - name: Wysłanie nowych plików przez SCP
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "."
+          source: "build_folder/*"
           target: "/home/buser1/public_html/githubTest/"
-          exclude: |
-            .git/
-            .github/
-            README.md
