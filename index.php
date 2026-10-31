@@ -75,8 +75,8 @@ if (isset($_POST['test_button'])) {
 <body>
 
 <div class="card">
-    <h1>🚀 PHP Test Page</h1>
-    <p>Jeśli widzisz tę stronę poprawnie sformatowaną, oznacza to, że PHP i serwer WWW działają!</p>
+    <h1>🚀 PHP Test Page1</h1>
+    <p>Jeśli widzisz tę stronę poprawnie sformatowaną, oznacza to, że PHP i serwer WWW działają elegancko!</p>
     
     <div class="info">
         <strong>Wersja PHP:</strong> <?= $phpVersion ?><br>
