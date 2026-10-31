@@ -13,34 +13,16 @@ jobs:
       - name: Pobierz kod z repozytorium
         uses: actions/checkout@v4
 
-      # --- PRZYGOTOWANIE CZYSTEGO FOLDERA DO WYSYŁKI ---
-      - name: Przygotowanie paczki plików (wykluczenie zbędnych)
-        run: |
-          mkdir build_folder
-          # Kopiujemy wszystko oprócz katalogów systemowych i README
-          rsync -av --exclude='.git' \
-                    --exclude='.github' \
-                    --exclude='README.md' \
-                    ./ build_folder/
-
-      # --- CZYSZCZENIE FOLDERA DOCELOWEGO NA SERWERZE ---
-      - name: Czyszczenie katalogu na serwerze
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            rm -rf /home/buser1/public_html/githubTest/*
-
-      # --- WYSYŁANIE GOTOWEJ PACZKI PRZEZ SCP ---
-      - name: Wysłanie nowych plików przez SCP
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "build_folder/*"
-          target: "/home/buser1/public_html/githubTest/"
+      # --- WYSYŁANIE BEZPOŚREDNIE PRZEZ RSYNC + SSH ---
+      - name: Deploy przez rsync
+        uses: easingthemes/ssh-deploy@v5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          TARGET: "/home/buser1/public_html/githubTest/"
+          # Czyszczenie folderu docelowego przed wrzuceniem
+          CLEAN: true 
+          # Pliki i foldery, których NIE chcemy wysyłać
+          EXCLUDE: "/.git/, /.github/, /README.md, /build_folder/"
